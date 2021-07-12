@@ -2,8 +2,7 @@ package br.com.cee.libraryapi.api.dto;
 
 import lombok.*;
 
-@Setter
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
