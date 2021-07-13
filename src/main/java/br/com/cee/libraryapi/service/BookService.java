@@ -1,6 +1,6 @@
 package br.com.cee.libraryapi.service;
 
-import br.com.cee.libraryapi.api.model.entity.Book;
+import br.com.cee.libraryapi.model.entity.Book;
 import org.springframework.stereotype.Service;
 
 @Service

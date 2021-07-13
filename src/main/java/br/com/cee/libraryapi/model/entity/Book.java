@@ -1,4 +1,4 @@
-package br.com.cee.libraryapi.api.model.entity;
+package br.com.cee.libraryapi.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
