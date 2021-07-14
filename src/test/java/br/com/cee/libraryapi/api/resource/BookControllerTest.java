@@ -1,6 +1,7 @@
 package br.com.cee.libraryapi.api.resource;
 
 import br.com.cee.libraryapi.api.dto.BookDTO;
+import br.com.cee.libraryapi.exception.BusinessException;
 import br.com.cee.libraryapi.model.entity.Book;
 import br.com.cee.libraryapi.service.BookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +42,7 @@ public class BookControllerTest {
     @DisplayName("Deve criar um livro com sucesso.")
     public void createdBookTest() throws Exception {
 
-        BookDTO dto = BookDTO.builder().author("Arthur").title("As Aventuras").isbn("12131415").build();
+        BookDTO dto = createBook();
         Book savedBook = Book.builder().id(10L).author("Arthur").title("As Aventuras").isbn("12131415").build();
 
         BDDMockito.given(service.save(Mockito.any(Book.class))).willReturn(savedBook);
@@ -81,7 +82,34 @@ public class BookControllerTest {
                 .andExpect( status().isBadRequest() )
                 .andExpect( jsonPath("errors", hasSize(3)));
 
+    }
 
+    @Test
+    @DisplayName("Deve lançar erro ao tentar cadastrar um livro com isbn duplicado.")
+    public void createBookWithDuplicatedIsbn() throws Exception {
+
+        BookDTO dto = createBook();
+        String json = new ObjectMapper().writeValueAsString(dto);
+        String mensagemErro = "Isbn já cadastrado.";
+
+        BDDMockito.given(service.save(Mockito.any(Book.class)))
+                .willThrow(new BusinessException(mensagemErro));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post(BOOK_API)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc.perform( request )
+                .andExpect( status().isBadRequest() )
+                .andExpect( jsonPath("errors", hasSize(1)))
+                .andExpect( jsonPath("errors[0]").value(mensagemErro));
+
+    }
+
+    private BookDTO createBook() {
+        return BookDTO.builder().author("Arthur").title("As Aventuras").isbn("12131415").build();
     }
 
 }
