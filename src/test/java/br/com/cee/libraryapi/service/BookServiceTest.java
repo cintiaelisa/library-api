@@ -1,8 +1,10 @@
 package br.com.cee.libraryapi.service;
 
+import br.com.cee.libraryapi.exception.BusinessException;
 import br.com.cee.libraryapi.model.entity.Book;
 import br.com.cee.libraryapi.model.repository.BookRepository;
 import br.com.cee.libraryapi.service.impl.BookServiceImpl;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +34,8 @@ public class BookServiceTest {
     @DisplayName("Deve salvar um livro")
     public void saveBookTest() {
         //cenário
-        Book book = Book.builder().isbn("12131415").author("Fulano").title("As aventuras").build();
+        Book book = createValidBook();
+        Mockito.when( repository.existsByIsbn(Mockito.anyString()) ).thenReturn(false);
         Mockito.when( repository.save(book)).thenReturn(
                         Book.builder()
                         .id(1L)
@@ -50,5 +53,28 @@ public class BookServiceTest {
         assertThat(savedBook.getIsbn()).isEqualTo("12131415");
         assertThat(savedBook.getAuthor()).isEqualTo("Fulano");
         assertThat(savedBook.getTitle()).isEqualTo("As aventuras");
+    }
+
+    @Test
+    @DisplayName("Deve lançar erro de negócio ao tentar salvar um livro com isbn duplicado")
+    public void shouldNotSaveABookWithDuplicatedISBN(){
+        //cenário
+        Book book = createValidBook();
+        Mockito.when( repository.existsByIsbn(Mockito.anyString()) ).thenReturn(true);
+
+        //execução
+        Throwable exception = Assertions.catchThrowable( () -> service.save(book));
+
+        //verificação
+        assertThat(exception)
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Isbn já cadastrado.");
+
+        Mockito.verify(repository, Mockito.never()).save(book);
+
+    }
+
+    private Book createValidBook() {
+        return Book.builder().isbn("12131415").author("Fulano").title("As aventuras").build();
     }
 }
