@@ -1,5 +1,6 @@
 package br.com.cee.libraryapi.mode.repository;
 
+import br.com.cee.libraryapi.model.entity.Book;
 import br.com.cee.libraryapi.model.repository.BookRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,9 @@ public class BookRepositoryTest {
     @DisplayName("Deve retornar verdadeiro quando existir um livro na base com o isbn informado.")
     public void returnTrueWhenIsbnExists() {
         //cenario
-        String isbn = "123";
+        String isbn = "12131415";
+        Book book = Book.builder().title("As Aventuras").author("Arthur").isbn(isbn).build();
+        entityManager.persist(book);
 
         //execução
         boolean exists = repository.existsByIsbn(isbn);
@@ -35,6 +38,20 @@ public class BookRepositoryTest {
         //verificação
 
         assertThat(exists).isTrue();
+    }
+
+    @Test
+    @DisplayName("Deve retornar falso quando não existir um livro na base com o isbn informado.")
+    public void returnFalseWhenIsbnDoesNotExists() {
+        //cenario
+        String isbn = "12131415";
+
+        //execução
+        boolean exists = repository.existsByIsbn(isbn);
+
+        //verificação
+
+        assertThat(exists).isFalse();
     }
 
 }
