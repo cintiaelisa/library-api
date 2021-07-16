@@ -181,6 +181,56 @@ public class BookControllerTest {
 
     }
 
+    @Test
+    @DisplayName("Deve atualizar um livro")
+    public void updateBookTest() throws Exception {
+
+        Long id = 1L;
+        String json = new ObjectMapper().writeValueAsString(createBook());
+
+        Book updatingBook = Book.builder().id(1L).title("some title").author("some author").isbn("12131415").build();
+        Book updatedBook = Book.builder().author("Arthur").title("As Aventuras").isbn("12131415").build();
+
+        BDDMockito.given(service.getById( id ))
+                .willReturn( Optional.of( updatingBook ));
+
+        BDDMockito.given(service.update( updatingBook ))
+                .willReturn( updatedBook );
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(BOOK_API.concat("/" + 1))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);;
+
+        mvc.perform( request )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath("id").value( id ) )
+                .andExpect( jsonPath("title").value(createBook().getTitle()) )
+                .andExpect( jsonPath("author").value(createBook().getAuthor()) )
+                .andExpect( jsonPath("isbn").value(createBook().getIsbn()) );
+    }
+
+    @Test
+    @DisplayName("Deve retornar 404 ao tentar atualizar um livro inexistente")
+    public void updateNonexistentBookTest() throws Exception {
+
+        Long id = 1L;
+        String json = new ObjectMapper().writeValueAsString(createBook());
+
+        BDDMockito.given(service.getById( id ))
+                .willReturn( Optional.empty() );
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(BOOK_API.concat("/" + 1))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);;
+
+        mvc.perform( request )
+                .andExpect( status().isNotFound() );
+    }
+
     private BookDTO createBook() {
         return BookDTO.builder().author("Arthur").title("As Aventuras").isbn("12131415").build();
     }
