@@ -102,7 +102,6 @@ public class BookServiceTest {
     public void bookNotFoundByIdTest() {
         //cenário
         Long id = 1L;
-
         Mockito.when(repository.findById(id)).thenReturn(Optional.empty());
 
         //Execução
@@ -112,6 +111,80 @@ public class BookServiceTest {
         assertThat( book.isPresent() ).isFalse();
 
     }
+
+    @Test
+    @DisplayName("Deve deletar um livro")
+    public void deleteBookTest() {
+        //cenário
+        Book book = createValidBook();
+
+        //Execução
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow( () -> repository.delete(book));
+
+
+        //Verificação
+        Mockito.verify(repository, Mockito.times(1)).delete(book);
+    }
+
+    @Test
+    @DisplayName("Deve lançar erro ao deletar livro inexistente.")
+    public void deleteNullBook() {
+        //cenário
+        Book book = new Book();
+
+        //Execução
+        Throwable exception = Assertions.catchThrowable( () -> service.delete(book));
+
+        //Verificação
+        assertThat(exception)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Book id can't be null");
+
+        Mockito.verify(repository, Mockito.never()).delete(book);
+    }
+
+    @Test
+    @DisplayName("Deve atualizar um livro")
+    public void updateBookTest() {
+        //cenário
+        long id = 1L;
+        Book updatingBook = Book.builder().id(id).build();
+
+        //Simulação
+        Book updatedBook = createValidBook();
+        updatedBook.setId(id);
+        Mockito.when(repository.save(updatingBook)).thenReturn(updatedBook);
+
+        //Execução
+        Book book = service.update(updatingBook);
+
+        //Verificação
+        assertThat(book.getId()).isEqualTo(updatedBook.getId());
+        assertThat(book.getAuthor()).isEqualTo(updatedBook.getAuthor());
+        assertThat(book.getTitle()).isEqualTo(updatedBook.getTitle());
+        assertThat(book.getIsbn()).isEqualTo(updatedBook.getIsbn());
+        Mockito.verify(repository, Mockito.times(1)).save(updatingBook);
+
+
+    }
+
+    @Test
+    @DisplayName("Deve lançar erro ao tentar atualizar livro inexistente.")
+    public void updateNullBook() {
+        //cenário
+        Book book = new Book();
+
+        //Execução
+        Throwable exception = Assertions.catchThrowable( () -> service.update(book));
+
+        //Verificação
+        assertThat(exception)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Book id can't be null");
+
+        Mockito.verify(repository, Mockito.never()).save(book);
+    }
+
 
     private Book createValidBook() {
         return Book.builder().isbn("12131415").author("Fulano").title("As aventuras").build();
