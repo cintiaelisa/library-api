@@ -1,4 +1,4 @@
-package br.com.cee.libraryapi.mode.repository;
+package br.com.cee.libraryapi.model.repository;
 
 import br.com.cee.libraryapi.model.entity.Book;
 import br.com.cee.libraryapi.model.repository.BookRepository;
@@ -21,10 +21,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class BookRepositoryTest {
 
     @Autowired
-    TestEntityManager entityManager;
+    private TestEntityManager entityManager;
 
     @Autowired
-    BookRepository repository;
+    private BookRepository repository;
 
     @Test
     @DisplayName("Deve retornar verdadeiro quando existir um livro na base com o isbn informado.")
@@ -98,7 +98,7 @@ public class BookRepositoryTest {
 
     }
 
-    private Book createNewBook(String isbn) {
+    public static Book createNewBook(String isbn) {
         return Book.builder().title("As Aventuras").author("Arthur").isbn(isbn).build();
     }
 
