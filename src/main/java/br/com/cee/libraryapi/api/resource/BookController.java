@@ -1,6 +1,7 @@
 package br.com.cee.libraryapi.api.resource;
 
 import br.com.cee.libraryapi.api.dto.BookDTO;
+import br.com.cee.libraryapi.api.dto.ReturnedLoanDTO;
 import br.com.cee.libraryapi.api.exception.ApiErrors;
 import br.com.cee.libraryapi.exception.BusinessException;
 import br.com.cee.libraryapi.model.entity.Book;
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController

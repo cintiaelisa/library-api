@@ -1,6 +1,7 @@
 package br.com.cee.libraryapi.api.resource;
 
 import br.com.cee.libraryapi.api.dto.LoanDTO;
+import br.com.cee.libraryapi.api.dto.ReturnedLoanDTO;
 import br.com.cee.libraryapi.model.entity.Book;
 import br.com.cee.libraryapi.model.entity.Loan;
 import br.com.cee.libraryapi.service.BookService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/loans")
@@ -37,5 +39,15 @@ public class LoanController {
 
         return savedLoan.getId();
     }
+
+    @PatchMapping("{id}")
+    public void returnBook(
+            @PathVariable Long id,
+            @RequestBody ReturnedLoanDTO dto) {
+        Loan loan = service.getById(id).get();
+        loan.setReturned(dto.getReturned());
+        service.update(loan);
+    }
+
 
 }

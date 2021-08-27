@@ -1,6 +1,7 @@
 package br.com.cee.libraryapi.api.resource;
 
 import br.com.cee.libraryapi.api.dto.LoanDTO;
+import br.com.cee.libraryapi.api.dto.ReturnedLoanDTO;
 import br.com.cee.libraryapi.exception.BusinessException;
 import br.com.cee.libraryapi.model.entity.Book;
 import br.com.cee.libraryapi.model.entity.Loan;
@@ -28,6 +29,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -110,5 +113,25 @@ public class LoanControllerTest {
                 .andExpect( status().isBadRequest() )
                 .andExpect( jsonPath("errors", Matchers.hasSize(1)) )
                 .andExpect(jsonPath("errors[0]").value("Book already loaned."));
+    }
+
+    @Test
+    @DisplayName("Deve retornar um livro.")
+    public void returnBookTest() throws Exception {
+        //cenário ( returned: true )
+        ReturnedLoanDTO dto = ReturnedLoanDTO.builder().returned(true).build();
+        final Loan loan = Loan.builder().id(1L).build();
+        BDDMockito.given(loanService.getById(anyLong())).willReturn(Optional.of(loan));
+
+        String json = new ObjectMapper().writeValueAsString(dto);
+
+        mvc.perform(
+                patch(LOAN_API.concat("/1"))
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+        ).andExpect( status().isOk() );
+
+        Mockito.verify(loanService, Mockito.times(1)).update(loan);
     }
 }
