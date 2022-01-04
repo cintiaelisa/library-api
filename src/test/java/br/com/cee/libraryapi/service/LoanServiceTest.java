@@ -1,20 +1,27 @@
 package br.com.cee.libraryapi.service;
 
+import br.com.cee.libraryapi.api.dto.LoanFilterDTO;
 import br.com.cee.libraryapi.exception.BusinessException;
 import br.com.cee.libraryapi.model.entity.Book;
 import br.com.cee.libraryapi.model.entity.Loan;
 import br.com.cee.libraryapi.model.repository.LoanRepository;
 import br.com.cee.libraryapi.service.impl.LoanServiceImpl;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +79,7 @@ public class LoanServiceTest {
 
         Loan savingLoan = Loan.builder()
                 .book(Book.builder().id(1L).build())
-                .customer("Fulano")
+                .customer(customer)
                 .loanDate(LocalDate.now())
                 .build();
 
@@ -124,13 +131,44 @@ public class LoanServiceTest {
         verify(repository).save(loan);
     }
 
+    @Test
+    @DisplayName("Deve filtrar empréstimos pelas propriedades")
+    public void findLoanTest() {
+        //Cenário
+
+        LoanFilterDTO loanFilterDTO = LoanFilterDTO.builder().customer("Fulano").isnb("321").build();
+
+        Loan loan = createLoan();
+        loan.setId(1L);
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        List<Loan> lista = Arrays.asList(loan);
+
+        Page<Loan> page = new PageImpl<Loan>(lista, pageRequest, 1);
+        when( repository.findByBookIsbnOrCustomer(
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.any(PageRequest.class))
+        )
+                .thenReturn(page);
+
+        //Execução
+        Page<Loan> result = service.find(loanFilterDTO, pageRequest);
+
+        //Verificações
+        AssertionsForClassTypes.assertThat( result.getTotalElements() ).isEqualTo(1);
+        AssertionsForClassTypes.assertThat(result.getContent()).isEqualTo(lista);
+        AssertionsForClassTypes.assertThat(result.getPageable().getPageNumber()).isEqualTo(0);
+        AssertionsForClassTypes.assertThat(result.getPageable().getPageSize()).isEqualTo(10);
+    }
+
     public static Loan createLoan() {
         Book book = Book.builder().id(1L).build();
-        String customer = "Fulano";
+        String customer = "customer";
 
         return Loan.builder()
-                .book(Book.builder().id(1L).build())
-                .customer("Fulano")
+                .book(book)
+                .customer(customer)
                 .loanDate(LocalDate.now())
                 .build();
     }
