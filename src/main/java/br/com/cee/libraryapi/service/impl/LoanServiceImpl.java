@@ -2,6 +2,7 @@ package br.com.cee.libraryapi.service.impl;
 
 import br.com.cee.libraryapi.api.dto.LoanFilterDTO;
 import br.com.cee.libraryapi.exception.BusinessException;
+import br.com.cee.libraryapi.model.entity.Book;
 import br.com.cee.libraryapi.model.entity.Loan;
 import br.com.cee.libraryapi.model.repository.LoanRepository;
 import br.com.cee.libraryapi.service.LoanService;
@@ -39,5 +40,10 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public Page<Loan> find(LoanFilterDTO filter, Pageable pageable) {
         return repository.findByBookIsbnOrCustomer(filter.getIsnb(), filter.getCustomer(), pageable);
+    }
+
+    @Override
+    public Page<Loan> getLoandByBook(Book book, Pageable pageable) {
+        return repository.findByBook(book, pageable);
     }
 }
