@@ -6,6 +6,7 @@ import br.com.cee.libraryapi.model.entity.Loan;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface LoanService {
@@ -18,4 +19,6 @@ public interface LoanService {
     Page<Loan> find(LoanFilterDTO filter, Pageable pageable);
 
     Page<Loan> getLoandByBook(Book book, Pageable pageable);
+
+    List<Loan> getAllLateLoans();
 }
