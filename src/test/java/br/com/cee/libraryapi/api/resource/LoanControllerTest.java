@@ -32,6 +32,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -58,7 +59,7 @@ public class LoanControllerTest {
     @Test@DisplayName("Deve criar um empréstimo")
     public void createLoanTest() throws Exception {
 
-        LoanDTO dto = LoanDTO.builder().isbn("12131415").customer("Fulano").build();
+        LoanDTO dto = LoanDTO.builder().isbn("12131415").email("customer@email.com").customer("Fulano").build();
         String json = new ObjectMapper().writeValueAsString(dto);
 
         Book book = Book.builder().id(1L).isbn("12131415").build();
@@ -169,7 +170,7 @@ public class LoanControllerTest {
         loan.setBook(Book.builder().id(1L).isbn("321").build());
 
         BDDMockito.given( loanService.find(Mockito.any(LoanFilterDTO.class), Mockito.any(Pageable.class)) )
-                .willReturn( new PageImpl<Loan>(Arrays.asList(loan), PageRequest.of(0, 10), 1) );
+                .willReturn( new PageImpl<>(Collections.singletonList(loan), PageRequest.of(0, 10), 1) );
 
         String queryString = String.format("?isbn=%s&customer=%s&page=0&size=10",
                 loan.getBook().getIsbn(), loan.getCustomer());
