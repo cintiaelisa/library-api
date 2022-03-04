@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
@@ -128,7 +129,7 @@ public class BookServiceTest {
         Book book = createValidBook();
 
         //Execução
-        org.junit.jupiter.api.Assertions.assertDoesNotThrow( () -> repository.delete(book));
+        assertDoesNotThrow( () -> repository.delete(book));
 
 
         //Verificação
